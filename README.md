@@ -1,10 +1,10 @@
 <a id="readme-top"></a>
 
-[![Contributors][contributors-shield]][https://github.com/cmcintosh/akira_the_ai/graphs/contributors]
-[![Forks][forks-shield]][https://github.com/cmcintosh/akira_the_ai/network/members]
-[![Stargazers][stars-shield]][https://github.com/cmcintosh/akira_the_ai/network/members]
-[![Issues][issues-shield]][https://github.com/cmcintosh/akira_the_ai/issues]
-[![GNU GENERAL PUBLIC LICENSE][license-shield]][https://github.com/cmcintosh/akira_the_ai/blob/main/LICENSE.txt]
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![GNU GENERAL PUBLIC LICENSE][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
