@@ -72,7 +72,7 @@ These agents can act as moderation bots, tools, or in other roles and can intera
 
 ### Built With
 
-* [![Python][Python]][Python-url]
+* Python 3.12
 * [![React][React.js]][React-url]
 * [![Bootstrap][Bootstrap.com]][Bootstrap-url]
 * [![JQuery][JQuery.com]][JQuery-url]
@@ -194,4 +194,3 @@ COMING SOON
 [Bootstrap-url]: https://getbootstrap.com
 [JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
 [JQuery-url]: https://jquery.com 
-[Python-url]: https://www.python.org/
