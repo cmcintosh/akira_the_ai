@@ -1,5 +1,6 @@
 import importlib.util
 import os
+import NetworkDriver
 import NetworkEvent
 
 class Connecta:
@@ -20,8 +21,8 @@ class Connecta:
             driver_module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(driver_module)
 
-            # Assume the driver class is named "DriverClass" (you can adjust this as needed)
-            driver_class = getattr(driver_module, "DriverClass")
+            # Assume the driver class is named "NetworkDriver" (you can adjust this as needed)
+            driver_class = getattr(driver_module, "NetworkDriver")
 
             self.available_drivers[driver_path] = driver_class
             return True
@@ -45,11 +46,7 @@ class Connecta:
 
     def receive_message(self, platform_name, message_data):
         """Processes incoming messages from a given platform."""
-        driver_class = self.drivers.get(platform_name)
-        if driver_class:
-            return driver_class.receive_message(message_data)
-        else:
-            raise ValueError(f"Unsupported platform: {platform_name}")
+        self.notify_event("on_message", {"platform": platform_name, "message": message_data})
 
     def send_message(self, platform_name, message_data):
         """Sends outgoing messages to a given platform."""
@@ -59,38 +56,8 @@ class Connecta:
         else:
             raise ValueError(f"Unsupported platform: {platform_name}")
 
-    def on_message_received(self, message_data):
-        # Handle incoming messages here
-        pass
-
     def register_event_listener(self, eventType:str, listener):
         self.events[eventType].register(listener)
 
     def notify_event(self, eventType:str, *args, **kwargs):
         self.events[eventType].notify(*args, **kwargs)
-
-class DriverClass:
-    def __init__(self, connecta:Connecta):
-        self.connecta = connecta
-
-    def config(self, args):
-        """Configure the connection, store connection arguments."""
-        self.args = args
-        pass
-
-    def connect(self):
-        """Connection logic"""
-        pass
-
-    def receive_message(self, message_data):
-        """Implementation of receiving a message for this driver class."""
-        self.connecta.on_message_received(message_data=message_data)
-
-    def send_message(self, message_data):
-        """Implementation of sending a message for this driver class."""
-        # platform-specific implementation
-        pass
-
-    def get_allowed_attachment_types(self):
-        """Returns the list of allowed attachment types for this driver class."""
-        return None

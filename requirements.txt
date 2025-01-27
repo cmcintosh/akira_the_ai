@@ -1,0 +1,33 @@
+feedparser
+pytz
+discord.py
+twitchAPI
+openai==0.28
+aiohttp
+tldextract
+python-whois
+requests
+python-dotenv
+beautifulsoup4
+
+pathlib
+flask[async]
+flask-socketio
+flask-cors
+eventlet
+gevent 
+gevent-websocket
+chainlit
+
+langchain>=0.0.1  # Specify a minimum version, adjust as needed
+langchain_ollama  # For Ollama-specific functionality within LangChain
+neo4j
+pynacl
+youtube-dl==2021.2.10
+
+websockets
+quart
+quart_cors
+python-socketio
+redis
+mysql-connector-python
