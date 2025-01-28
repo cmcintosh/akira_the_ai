@@ -23,7 +23,10 @@ class MysqlConnection:
         self.password = os.getenv('MYSQL_PASS')
         self.database = os.getenv('MYSQL_DATABASE')
         self.connection = None
-        self.connect()
+        try:
+            self.connect()
+        except Error as e:
+            logging.error(f"Error connecting to database: {e}")
 
     def connect(self):
         """
@@ -74,11 +77,13 @@ class MysqlConnection:
         Raises:
             Error: If an error occurs during the query execution process.
         """
-        self.connection.execute(query, params)
+        mycursor = self.connection.cursor(dictionary=True)
+        mycursor.execute(query, params)
         if fetch:
-            return self.connection.fetchall()
+            logging.info("returning fetchall")
+            return mycursor.fetchall()
         elif returnCursor:
-            return self.connection.cursor()
+            return mycursor
 
     def select(self, table, conditions=None):
         """
@@ -95,7 +100,8 @@ class MysqlConnection:
             Error: If an error occurs during the query execution process.
         """
         if conditions is None:
-            return self.execute_query(f"SELECT * FROM {table}", fetch=True)
+            results = self.execute_query(f"SELECT * FROM {table}", fetch=True)
+            return results
         elif isinstance(conditions, dict):
             return self.select(table, conditions=conditions)
         else:
