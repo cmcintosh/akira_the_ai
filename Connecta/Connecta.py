@@ -1,11 +1,13 @@
 import importlib.util
 import os
-import NetworkDriver
-import NetworkEvent
+from Services.MySql import MysqlConnection
+from Connecta.NetworkDriver import NetworkDriver
+from Connecta.NetworkEvent import NetworkEvent
 
 class Connecta:
-    def __init__(self):
+    def __init__(self, id:int=None):
         self.available_drivers = {}  # Dictionary of available driver classes for each platform
+        self.network_data = []
         self.networks = {}  # Dictionary of instantiated drivers (one per network)
         self.platform_config = {}  # configuration for each platform (e.g., allowed attachment types)
         self.events = {
@@ -13,6 +15,19 @@ class Connecta:
             "on_error": NetworkEvent()
         }
         self.current_driver_config = None
+        self.db = MysqlConnection()
+        self.db.connect()
+
+    def load(self, id):
+        """
+         Loads the configurations needed for the networks the agent will connect to.
+        """
+        query_networks = "SELECT a.* FROM bots__networks a WHERE a.bid = %d"
+        results = self.db.select(table="bots__networks", conditions={"id": id})
+        self.network_data = results
+
+    def save(self, data):
+        pass
 
     def register_driver(self, driver_path: str):
         """Registers a driver class from a Python file."""

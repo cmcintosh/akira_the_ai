@@ -109,14 +109,43 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 <!-- ROADMAP -->
 ## Roadmap
+Below is the roadmap for this system. Items marked with an * should be considered implemented, items marked with o should be considered in progress. Items not marked are planned for the future.
 
-- [ ] Agent Management - Manage multiple Agents via a web interface
-- [ ] Communication Abstraction - Interact with agents in discord, twitch, and other methods.
+- [o] Agent Management - Manage multiple Agents via a web interface
+  - [o] Create/Read/Update/Delete operation of Agents
+  - [ ] Intra-Agent communications
+  - [ ] Agent Communication / Introspection Log
+  - [ ] Conditional Prompt system - Allow switching of prompts based on Conditions of incoming / outgoing messages
+
+- [o] Communication Abstraction - Interact with agents in discord, twitch, and other methods.
+  - [ ] Documentation on adding new Platforms for indbound / outbound communication with agents.
+  - [ ] Implement Discord communication driver
+  - [ ] Implement Twitch communication driver
+  - [ ] Implement RestFUL API driver
+  - [ ] Implement Socket.IO API driver
+  - [ ] Implement Websockets Driver
+
 - [ ] User relationships
     - [ ] Karma system based on interactions
     - [ ] Memory of likes/dislikes/other facts from user interactions
+    - [ ] Psychological Profiling - Adapt interaction style of agents with users they are familiar with based on Psychological profiling system / emotional intelligence principles
+    - [ ] Social Media Profiling
+
+- [ ] Permission System
+    - [ ] Defining of Access/Permission system that agents can be aware of when interacting with users (Prevent users from using/initiating interactions restricted to trusted users)
+
 - [ ] Dynamic Tool system
     - [ ] Creation and management of user and agent generated scripts to enhance agent abilities
+    - [ ] Editing/Viewing of Bot generated tools
+
+- [ ] Workspace - A workspace that allows the containment of bot generated files / scripts / documents
+
+- [ ] Workflows - Define a templated workflow you want one or more agents to follow, this can be useful in creating regularly recurring tasks.
+  - [ ] CRUD for Workflows
+  - [ ] Reference / Use workflows in conversations to agents.
+
+- [ ] Plugin System - Allow developers to create custom plugins that can
+      connect into the AMS (Agent Management System)
 
 See the [open issues](https://github.com/cmcintosh/akira_the_ai/issues) for a full list of proposed features (and known issues).
 
@@ -151,18 +180,12 @@ Distributed under the GNU GENERAL PUBLIC LICENSE. See `LICENSE.txt` for more inf
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
 ## Contact
-
-Your Name - [@TeamWembassy](https://twitter.com/TeamWembassy) - cmcintosh@wembassy.com
-
-Project Link: [https://github.com/cmcintosh/akira_the_ai](https://github.com/cmcintosh/akira_the_ai)
+[@TeamWembassy](https://twitter.com/TeamWembassy) - cmcintosh@wembassy.com
+[https://github.com/cmcintosh/akira_the_ai](https://github.com/cmcintosh/akira_the_ai)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
