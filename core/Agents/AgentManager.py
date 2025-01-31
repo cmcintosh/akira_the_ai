@@ -1,5 +1,5 @@
-from Services.MySql import MysqlConnection
-from Agents.Agent import Agent
+from core.Services.MySql import MysqlConnection
+from core.Agents.Agent import Agent
 
 class AgentManager:
   
@@ -49,11 +49,13 @@ class AgentManager:
       # Existing agent, so update
       if data["id"] not in self.agents:
         self.load(data["id"])
-        self.agents["id"].save(data)
+        self.agents[data["id"]].save(data)
+        return self.agents[data["id"]]
     else:
       # Creation of a new agent.
-      
-      pass
+      id = self.db.insert("bots", data)
+      self.agents[id] = Agent(id)
+      return self.agents[id]
 
   def start(self):
     pass

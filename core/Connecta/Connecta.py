@@ -1,8 +1,8 @@
 import importlib.util
 import os
-from Services.MySql import MysqlConnection
-from Connecta.NetworkDriver import NetworkDriver
-from Connecta.NetworkEvent import NetworkEvent
+from core.Services.MySql import MysqlConnection
+from core.Connecta.NetworkDriver import NetworkDriver
+from core.Connecta.NetworkEvent import NetworkEvent
 
 class Connecta:
     def __init__(self, id:int=None):

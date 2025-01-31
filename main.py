@@ -1,7 +1,7 @@
 
 import logging
 import asyncio
-from Services.Httpd import WebServer
+from core.Services.Httpd import WebServer
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 

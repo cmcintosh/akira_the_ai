@@ -1,5 +1,6 @@
-from Services.MySql import MysqlConnection
-from Connecta.Connecta import Connecta
+
+from core.Services.MySql import MysqlConnection
+from core.Connecta.Connecta import Connecta
 import logging
 
 class Agent:

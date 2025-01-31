@@ -1,4 +1,4 @@
-import Connecta
+from core.Connecta import Connecta
 
 class NetworkDriver:
     def __init__(self, connecta:Connecta):
