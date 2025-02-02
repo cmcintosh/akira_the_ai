@@ -35,9 +35,11 @@ class PluginManager():
     results = self.db.select("plugins")
 
     for row in results:
-      if row["plugin"] not in self.plugins:
+      if row["plugin"] in self.plugins:
         if row["status"] == 1:
-          self.plugins[row["plugin"]] = self.initializePlugin(self.available_plugins[row["plugin"]]["module"], self.available_plugins[row["plugin"]]["className"])
+            self.plugins[row["plugin"]] = self.initializePlugin(self.available_plugins[row["plugin"]]["module"], self.available_plugins[row["plugin"]]["className"])
+      else:
+         logging.warning(f"Plugin in database, but not in filesystem: {row['plugin']}")
 
   def initializePlugin(self, module_name, class_name):
     module = importlib.import_module(module_name)
@@ -55,14 +57,24 @@ class PluginManager():
     for subfolder, plugin_list in plugins.items():  # ✅ Properly loop over key-value pairs
         for plugin in plugin_list:  # ✅ Iterate through the list of plugin dictionaries
             if "id" in plugin:  # ✅ Ensure "id" key exists to avoid KeyError
-                self.available_plugins[plugin["id"]] = plugin
+                if plugin["id"] in self.available_plugins:
+                  self.available_plugins[plugin["id"]] = plugin
+                else:
+                  logging.warning(f"Plugin in database but not in filesystem: {plugin["id"]}")
+            else:
+              logging.warning(f"Plugin info json not formatted properly.")
 
     # Scan custom plugins
     plugins = self.scanPlugins(self.customPluginDirectory)
     for subfolder, plugin_list in plugins.items():
         for plugin in plugin_list:
-            if "id" in plugin:
-                self.available_plugins[plugin["id"]] = plugin
+            if "id" in plugin:  # ✅ Ensure "id" key exists to avoid KeyError
+                if plugin["id"] in self.available_plugins:
+                  self.available_plugins[plugin["id"]] = plugin
+                else:
+                  logging.warning(f"Plugin in database but not in filesystem: {plugin["id"]}")
+            else:
+              logging.warning(f"Plugin info json not formatted properly.")
 
   def scanPlugins(self, base_dir):
     """
@@ -108,10 +120,13 @@ class PluginManager():
       Disables and then removes a plugin's database tables from the system
     """
     try:
-      self.plugins[plugin].uninstall()
+      
+      if hasattr(self.plugins[plugin], "uninstall") and callable(getattr(self.plugins[plugin], "uninstall")):
+                self.plugins[plugin].uninstall()
+
       self.disablePlugin(plugin)
     except Exception as e:
-       logging.error("Error uninstalling plugin {e}")
+       logging.error(f"Error uninstalling plugin {e}")
 
   def register_hook(self, hook:str):
     """
