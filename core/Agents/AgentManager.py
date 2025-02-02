@@ -57,6 +57,10 @@ class AgentManager:
       self.agents[id] = Agent(id)
       return self.agents[id]
 
+  def delete(self, id:int):
+      self.agents[id].delete()
+      self.agents[id] = None
+
   def start(self):
     pass
 

@@ -90,6 +90,15 @@ class Agent:
 
     return {"status": 1, "agent": self}
 
+  def delete(self):
+    # We need to go through and delete a lot of things
+
+    # Delete settings for the networks
+    self.networks.delete()
+
+    # Delete the bot record
+    self.db.delete(table="bots", conditions={"id": self.id})
+
   def keepAlive(self):
     pass
   

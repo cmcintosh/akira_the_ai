@@ -1,0 +1,6 @@
+{
+  "id": "example",
+  "name": "Example Plugin",
+  "description": "Example plugin meant to demonstrate the plugin system for the Agent platform",
+  "className": "ExamplePlugin"
+}
