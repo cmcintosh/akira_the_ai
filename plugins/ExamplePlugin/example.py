@@ -1,38 +1,38 @@
-
 class ExamplePlugin:
-  """
-    Defines the main class for a plugin to be used with the platform.
-  """
-
-  def __init__(self, pluginManager):
-    self.pluginManager = pluginManager
-
     """
-      Define your hooks by leveraging the register_hook method
+    Example plugin that demonstrates how to extend the PluginManager system.
     """
 
-    """
-      Register a new hook.
-    """
-    self.pluginManager.register_hook("hello_world")
+    def __init__(self, pluginManager):
+        """
+        Initializes the plugin and registers hooks.
+        
+        Args:
+            pluginManager (PluginManager): Instance of the plugin manager.
+        """
+        self.pluginManager = pluginManager
 
-    """
-      Register a handler for a hook.
-    """
-    self.pluginManager.on("hello_world", self.SayHi)
+        # ✅ Register a new hook that other plugins can use
+        self.pluginManager.register_hook("hello_world")
 
+        # ✅ Register a handler for a hook
+        self.pluginManager.on("hello_world", self.say_hi)
 
-    def SayHi(self, *args, **kwargs):
-      """
-        Example Callback for reacting to a hook.
-      """
-      print("HELLO WORLD")
+    def say_hi(self, *args, **kwargs):
+        """
+        Example callback that reacts when the 'hello_world' hook is invoked.
+        """
+        print("HELLO WORLD")
 
+    def invoke_trigger(self):
+        """
+        Example of how a plugin can trigger a hook, causing all registered callbacks to execute.
+        """
+        self.pluginManager.invoke_hook("hello_world")
 
     def uninstall(self):
-      """
-        Example of a uninstall hook for a plugin
-      """
-    
-
-  
+        """
+        Defines the uninstall method that the PluginManager will call when uninstalling this plugin.
+        """
+        print("Uninstalling ExamplePlugin...")
+        # Perform cleanup if necessary
