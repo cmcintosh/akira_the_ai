@@ -6,19 +6,41 @@ from quart_cors import cors
 from dotenv import load_dotenv
 import json
 
-from Services.MySql import MysqlConnection
-from Agents.AgentManager import AgentManager
+from core.Services.Plugins import PluginManager
+from core.Services.MySql import MysqlConnection
+from core.Agents.AgentManager import AgentManager
 
 load_dotenv()
 
 WEB_FOLDER = os.path.abspath("./web/dist")
 
+class RouteDefinition:
+    """
+        Route Definitions are used to define routes to use in the 
+        routing system of the webserver.
+    """
+    self.url = ""
+    self.methods = ["GET"]
+    self.callback = None
+
+    def __init__(self, url:str, callback:any, methods:list = ["GET"]):
+        self.url = url
+        self.callback = callback
+        self.methods = methods
+
+
 class WebServer:
-    def __init__(self):
+    def __init__(self, pluginManager:PluginManager):
+        self.pluginManager = pluginManager
+        self.pluginManager.register_hook("http_route")
+
         self.httpPort = int(os.getenv("HTTP_PORT", "8080"))  # fallback to 8080 if not set
         self.app = Quart(__name__)
         self.app = cors(self.app, allow_origin="*")
         self.mysql = MysqlConnection()
+
+        self.registeredRoutes = []
+        self.pluginManager.invoke_hook("http_route", self.registeredRoutes)
         
         # Ensure JS, JSX, etc. are served with correct MIME types
         mimetypes.add_type("text/css", ".css")
@@ -177,6 +199,8 @@ class WebServer:
             except Exception as e:
                 logging.error(e)
                 return jsonify({"error": e}), 500
+
+        # Load dynamic routes created by plugins....
 
     def start(self):
         logging.info("Starting HTTPD server")

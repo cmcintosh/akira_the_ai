@@ -1,11 +1,18 @@
 
 import logging
 import asyncio
+from core.Services.Plugins import PluginManager
 from core.Services.Httpd import WebServer
+from core.Services.Communication import CommunicationManager
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-server = WebServer()
+pluginManager = PluginManager()
+server = WebServer(pluginManager)
+
+# @TODO: convert how we are doing the networks to using the plugin system
+# @TODO: convert how we are doing communication with LLMs to using the plugin system
+
 
 async def main():
   try:
