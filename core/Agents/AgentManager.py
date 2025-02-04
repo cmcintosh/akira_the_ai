@@ -1,9 +1,11 @@
 from core.Services.MySql import MysqlConnection
+from core.Services.Plugins import PluginManager
 from core.Agents.Agent import Agent
 
 class AgentManager:
   
-  def __init__(self):
+  def __init__(self, pluginManager:PluginManager):
+    self.pluginManager = pluginManager
     self.db = MysqlConnection()
     self.db.connect()
     self.agents = {}

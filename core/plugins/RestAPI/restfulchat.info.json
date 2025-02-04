@@ -1,0 +1,6 @@
+{
+  "id": "restfulchat",
+  "name": "Restful API",
+  "description": "This is a core plugin that adds a Restful API for interacting with agents.",
+  "className": "RestfulChat"
+}

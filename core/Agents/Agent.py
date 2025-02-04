@@ -1,7 +1,9 @@
 
 from core.Services.MySql import MysqlConnection
 from core.Connecta.Connecta import Connecta
+from quart import jsonify
 import logging
+import json
 
 class Agent:
 
@@ -24,7 +26,29 @@ class Agent:
     self.openai_secret_key=""
     self.networks = Connecta(id)
 
-    
+  def toData(self):
+    data = {
+      "id": self.id,
+      "name": self.name,
+      "machine_name": self.machine_name,
+      "uid": self.uid,
+      "status": self.status,
+      "created": self.created,
+      "updated": self.updated,
+      "model": self.model,
+      "prompt": self.prompt,
+      "prompt_template": self.prompt_template,
+      "openai_public_key": self.openai_public_key,
+      "openai_secret_key": self.openai_secret_key,
+      "networks": self.networks.toData()
+    }
+    return data
+
+  def toJson(self):
+    return jsonify(self.toData())
+
+
+
   def load(self):
     results = self.db.select(table="bots", conditions={ "id": self.id })
     

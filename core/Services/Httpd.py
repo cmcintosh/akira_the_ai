@@ -19,10 +19,6 @@ class RouteDefinition:
         Route Definitions are used to define routes to use in the 
         routing system of the webserver.
     """
-    self.url = ""
-    self.methods = ["GET"]
-    self.callback = None
-
     def __init__(self, url:str, callback:any, methods:list = ["GET"]):
         self.url = url
         self.callback = callback
@@ -30,9 +26,10 @@ class RouteDefinition:
 
 
 class WebServer:
-    def __init__(self, pluginManager:PluginManager):
+    def __init__(self, pluginManager:PluginManager, agentManager:AgentManager):
         self.pluginManager = pluginManager
         self.pluginManager.register_hook("http_route")
+        self.agentManager = agentManager
 
         self.httpPort = int(os.getenv("HTTP_PORT", "8080"))  # fallback to 8080 if not set
         self.app = Quart(__name__)
@@ -113,8 +110,9 @@ class WebServer:
         
         @self.app.route("/api/agent/<id>", methods=['GET'])
         async def getAgent(id):
-            data = self.agent_manager.load(id)
-            return jsonify(data)
+            agent = self.agentManager.load(id)
+            data = agent.toJson()
+            return data
 
         @self.app.route("/api/agent", methods=['POST'])
         async def createAgent():
@@ -125,7 +123,7 @@ class WebServer:
                 # if not self.validate_agent_json(data):
                 #     return jsonify({"error": "Invalid JSON structure"}), 400
 
-                id = self.agent_manager.save(data)
+                id = self.agentManager.save(data)
                 if not id:
                     raise ValueError("Failed to save agent data")
 
@@ -144,7 +142,7 @@ class WebServer:
             if not self.validate_agent_json(data):
                 return jsonify({"error": "Invalid JSON structure"}), 400
             try:
-                self.agent_manager.update_agent(data)
+                self.agentManager.update_agent(data)
                 return jsonify({"success": True, "agent": self.serialize_agent(data)}), 201
             except Exception as e:
                 logging.error(f"Error creating agent: {e}")
@@ -155,7 +153,7 @@ class WebServer:
             data = await request.get_json()
             try:
                 # Add logic to insert the channel into the database
-                updated_channels = self.agent_manager.update_agent_fields(id, data)
+                updated_channels = self.agentManager.update_agent_fields(id, data)
                 return jsonify({"channels": updated_channels}), 200
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
@@ -165,7 +163,7 @@ class WebServer:
         async def leave_twitch_channel(id, channel):
             data = await request.get_json()
             try:
-                status = self.agent_manager.remove_twitch_channel(agent_id=data["agent_id"], channel=data["channel"])
+                status = self.agentManager.remove_twitch_channel(agent_id=data["agent_id"], channel=data["channel"])
                 if status:
                     return jsonify({"success": 1}), 200
                 else:
@@ -180,10 +178,10 @@ class WebServer:
             logging.info("returned data:")
             logging.info(data)
             try:
-                # self.agent_manager.update_agent(data)
+                # self.agentManager.update_agent(data)
                 if (data["id"] is not None):
                     del(data["id"])
-                self.agent_manager.update_agent_fields(id, data)
+                self.agentManager.update_agent_fields(id, data)
                 
                 logging.info("END CALL\n\n\n\n\n\n")
                 return jsonify({"success": True, "agent": data}), 201
@@ -194,13 +192,23 @@ class WebServer:
         @self.app.route("/api/agent/<id>/delete", methods=['DELETE'])
         async def deleteAgent(id):
             try:
-                self.agent_manager.delete(id)
+                self.agentManager.delete(id)
                 return jsonify({"success": True}), 201
             except Exception as e:
                 logging.error(e)
                 return jsonify({"error": e}), 500
+        
+        
+        self.pluginManager.invoke_hook("http_route", self.registeredRoutes)
 
         # Load dynamic routes created by plugins....
+        for route in self.registeredRoutes:
+            url = route.get("url")
+            methods = route.get("methods", ["GET"])
+            callback = route.get("callback")
+
+            if url and callback:
+                self.app.route(url, methods=methods)(callback)  # Dynamically register route
 
     def start(self):
         logging.info("Starting HTTPD server")

@@ -3,6 +3,7 @@ import os
 from core.Services.MySql import MysqlConnection
 from core.Connecta.NetworkDriver import NetworkDriver
 from core.Connecta.NetworkEvent import NetworkEvent
+from quart import jsonify
 import logging
 
 class Connecta:
@@ -102,3 +103,10 @@ class Connecta:
 
     def notify_event(self, eventType:str, *args, **kwargs):
         self.events[eventType].notify(*args, **kwargs)
+
+    def toData(self):
+        data = []
+        return data
+
+    def toJson(self):
+        return jsonify(self.toData())
