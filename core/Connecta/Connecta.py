@@ -34,8 +34,8 @@ class Connecta:
         results = self.db.select(table="bots__networks", conditions={"id": id})
         self.network_data = results
 
-    def save(self):
-        self.db.merge(table="bots__networks", data={"id":id, "data": data, "network": network, "status":status}, keys=["id"])
+    def save(self, record):
+        self.db.merge(table="bots__networks", data={"id":record.id, "data": record.data, "network": record.network, "status": record.status}, keys=["id"])
         
 
     def delete(self):

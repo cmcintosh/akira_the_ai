@@ -2,28 +2,43 @@
 from core.Services.MySql import MysqlConnection
 from core.Connecta.Connecta import Connecta
 from quart import jsonify
+from datetime import datetime
 import logging
 import json
 
 class Agent:
 
-  def __init__(self, id):
+  def __init__(self, 
+               id, 
+               name="", 
+               machine_name="", 
+               uid="", 
+               status=0, 
+               created=0, 
+               updated=0, 
+               model="llama3.1:latest",
+               temp=0.7,
+               prompt="",
+               prompt_template=-1,
+               openai_public_key="",
+               openai_secret_key=""
+               ):
     self.db = MysqlConnection()
     self.db.connect()
 
     self.id = id
-    self.name = ""
-    self.machine_name = ""
-    self.uid = 0,
-    self.status = 0
-    self.created = 0
-    self.updated= 0
-    self.model = "llama3.1:latest"
-    self.temp = 0.7
-    self.prompt=""
-    self.prompt_template=-1
-    self.openai_public_key=""
-    self.openai_secret_key=""
+    self.name = name
+    self.machine_name = machine_name
+    self.uid = uid
+    self.status = status
+    self.created = created
+    self.updated= updated
+    self.model = model
+    self.temp = temp
+    self.prompt=prompt
+    self.prompt_template=prompt_template
+    self.openai_public_key=openai_public_key
+    self.openai_secret_key=openai_secret_key
     self.networks = Connecta(id)
 
   def toData(self):
@@ -42,6 +57,7 @@ class Agent:
       "openai_secret_key": self.openai_secret_key,
       "networks": self.networks.toData()
     }
+    
     return data
 
   def toJson(self):
@@ -54,6 +70,7 @@ class Agent:
     
     # this should be a single row here. the ID column is unique serial.
     for row in results:
+      logging.info(f"Row data for agent {self.id}: {row}")
       self.name = row["name"]
       self.machine_name = row["machine_name"]
       self.status = row["status"]
@@ -70,26 +87,43 @@ class Agent:
     self.networks.load(self.id)
 
   def save(self, data):
+    logging.info("Save on agent called")
     query = """UPDATE bots SET name = %s, machine_name = %s, uid = %s, 
                status = %s, created = %s, updated = %s, model = %s, 
-               temp = %s, prompt = %s, prompt_template = %s, 
-               openai_public_key = %s, openai_private_key = %s WHERE id = %s"""
+               temp = %s, prompt = %s, prompt_template = %s WHERE id = %s"""
+    # queryParams = [
+    #   data["name"], data["machine_name"], data["uid"],
+    #   data["status"], data["created"], data["updated"],
+    #   data["model"], data["temp"], data["prompt"], data["prompt_template"],
+    #   data["openai_public_key"], data["openai_private_key"], self.id
+    # ]
     queryParams = [
-      data["name"], data["machine_name"], data["uid"],
-      data["status"], data["created"], data["updated"],
-      data["model"], data["temp"], data["prompt"], data["prompt_template"],
-      data["openai_public_key"], data["openai_private_key"], self.id
+        data.get("name", ""), 
+        data.get("machine_name", ""), 
+        data.get("uid", 0), 
+        data.get("status", 0), 
+        self.convertDate(data.get("created", 0)), 
+        self.convertDate(data.get("updated", 0)), 
+        data.get("model", ""), 
+        data.get("temp", 0), 
+        data.get("prompt", ""), 
+        data.get("prompt_template", ""), 
+        data.get("id", "")
     ]
+    logging.info(f"Query: {query}")
+    logging.info(f"Params: {queryParams}")
     try:
-      self.db.execute_query(query=query, params=queryParams)
+      result = self.db.execute_query(query=query, params=queryParams, commit=True)
+      logging.info(f"Result: {result}")
     except Exception as e:
       # Stop processing here on an error like this, return back our status and error so we can pass it to the user
       logging.error(f"Error saving agent data {e}")
       return {"status": 0, "error": e} 
 
     try:
+      logging.info("Saving network info for agent")
       # Because of the Connecta abstractions, we should process save on it as well.
-      self.networks.save(data)
+      # self.networks.save(data)
     except Exception as e:
       # Stop processing here on an error like this, return back our status and error so we can pass it to the user
       logging.error(f"Error saving agent data {e}")
@@ -97,14 +131,14 @@ class Agent:
     
     # Once we are done update the database we should update our agent state
     # @TODO: Has to be a cleaner way for this....
-    self.name = data["name"]
-    self.machine_name = data["machine_name"]
-    self.uid = data["uid"]
-    self.status = data["status"]
-    self.created = data["created"]
-    self.updated = data["updated"]
-    self.model = data["model"]
-    self.temp = data["temp"]
+    self.name = data.get("name", "")
+    self.machine_name = data.get("machine_name", "")
+    self.uid = data.get("uid", 0)
+    self.status = data.get("status", 0)
+    self.created = data.get("created", 0)
+    self.updated = data.get("updated", 0)
+    self.model = data.get("model", "")
+    self.temp = data.get("temp", 0)
 
     # @TODO: in the future this will be more dynamic, but for now KISS
     self.prompt = data["prompt"]
@@ -125,6 +159,17 @@ class Agent:
 
   def keepAlive(self):
     pass
+
+  def convertDate(self, date_str):
+    """Convert a string timestamp to a Unix timestamp (seconds since epoch)."""
+    if not date_str:
+        return 0  # Default value if date is missing
+
+    try:
+        return int(datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").timestamp())
+    except ValueError:
+        logging.error(f"Invalid date format: {date_str}")
+        return 0  # Default fallback if parsing fails
   
 
 

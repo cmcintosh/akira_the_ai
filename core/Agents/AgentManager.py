@@ -1,6 +1,7 @@
 from core.Services.MySql import MysqlConnection
 from core.Services.Plugins import PluginManager
 from core.Agents.Agent import Agent
+import logging
 
 class AgentManager:
   
@@ -9,6 +10,16 @@ class AgentManager:
     self.db = MysqlConnection()
     self.db.connect()
     self.agents = {}
+
+    self.loadAll()
+
+  def get(self, id: int):
+    
+    agent = self.agents.get(int(id))
+    if agent is not None:
+      return agent
+    return self.load(id)  # ✅ Load if not found
+
   
   def load(self, id: int, initialize: bool = True):
     """
@@ -16,10 +27,29 @@ class AgentManager:
     initializes it if specified, and optionally adds it to the cache.
     Returns a Python dictionary.
     """
-
-    agent = Agent(id)
-    self.agents[id] = agent
-    return agent
+    results = self.db.execute_query(f"SELECT * FROM bots WHERE id = {id}", fetch=True)
+    
+    for row in results:
+          logging.info(f"Load all Results: {row}")
+          self.agents[row["id"]] = Agent(
+            row["id"],
+            row["name"],
+            row["machine_name"],
+            row["uid"],
+            row["status"],
+            row["created"],
+            row["updated"],
+            row["model"],
+            row["temp"],
+            row["prompt"],
+            row["prompt_template"],
+            row["openai_public_key"],
+            row["openai_secret_key"]
+          )
+    if id in self.agents:
+      return  self.agents.get(int(id))
+    else:
+      return None
 
   def load_multiple(self, ids: list[int]):
     """
@@ -36,9 +66,22 @@ class AgentManager:
   def loadAll(self):
     results = self.db.select(table="bots")
     agents = []
-    for id in results:
-      if id not in self.agents:
-        self.agents[id] = Agent(id)
+    for row in results:
+      self.agents[row["id"]] = Agent(
+        row["id"],
+        row["name"],
+        row["machine_name"],
+        row["uid"],
+        row["status"],
+        row["created"],
+        row["updated"],
+        row["model"],
+        row["temp"],
+        row["prompt"],
+        row["prompt_template"],
+        row["openai_public_key"],
+        row["openai_secret_key"]
+      )
 
     return self.agents
 
@@ -48,11 +91,14 @@ class AgentManager:
     """
 
     if data["id"] is not None:
+      logging.info("ID found in data, updating existing agent")
       # Existing agent, so update
       if data["id"] not in self.agents:
+        logging.info("Agent was not in local array")
         self.load(data["id"])
-        self.agents[data["id"]].save(data)
-        return self.agents[data["id"]]
+        
+      return self.agents[data["id"]].save(data)
+      return self.agents[data["id"]]
     else:
       # Creation of a new agent.
       id = self.db.insert("bots", data)

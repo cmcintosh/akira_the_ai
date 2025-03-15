@@ -61,7 +61,7 @@ class MysqlConnection:
         else:
             logging.warning("No active database connection to close.")
 
-    def execute_query(self, query, params=None, fetch=False, returnCursor=False):
+    def execute_query(self, query, params=None, fetch=False, returnCursor=False, commit=False):
         """
         Execute a MySQL query.
         
@@ -79,6 +79,9 @@ class MysqlConnection:
         """
         mycursor = self.connection.cursor(dictionary=True)
         mycursor.execute(query, params)
+        if commit:
+            self.connection.commit()  # ✅ Commit changes to the database
+            logging.info("Database changes committed.")
         if fetch:
             logging.info("returning fetchall")
             return mycursor.fetchall()
@@ -124,7 +127,7 @@ class MysqlConnection:
         columns = ", ".join(data.keys())
         placeholders = ", ".join(["%s"] * len(data))
         query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
-        cursor = self.execute_query(query, list(data.values()), returnCursor=True)
+        cursor = self.execute_query(query, list(data.values()), returnCursor=True, commit=True)
         rowId = cursor.lastrowid
         cursor.close()
         return rowId
@@ -143,7 +146,7 @@ class MysqlConnection:
         """
         set_clause = ", ".join([f"{col} = %s" for col in data.keys()])
         query = f"UPDATE {table} SET {set_clause} WHERE {self.build_condition_string(conditions)}"
-        self.execute_query(query, list(data.values()))
+        self.execute_query(query, list(data.values()), commit=True)
 
     def delete(self, table, conditions):
         """
@@ -160,7 +163,7 @@ class MysqlConnection:
             Error: If an error occurs during the query execution process.
         """
         query = f"DELETE FROM {table} WHERE {self.build_condition_string(conditions)}"
-        return self.execute_query(query)
+        return self.execute_query(query, commit=True)
 
     def merge(self, table, data, keys):
         """

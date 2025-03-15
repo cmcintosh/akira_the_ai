@@ -98,7 +98,6 @@ class WebServer:
                     "total": 0,
                     "data": []
                 })
-            logging.info(f"{results}")
             paginated_results = results[offset:offset + limit]
             return jsonify({
                 "page": page,
@@ -110,9 +109,12 @@ class WebServer:
         
         @self.app.route("/api/agent/<id>", methods=['GET'])
         async def getAgent(id):
-            agent = self.agentManager.load(id)
-            data = agent.toJson()
-            return data
+            agent = self.agentManager.get(id)
+            if agent is not None:
+                data = agent.toJson()
+                return data
+            else:
+                return jsonify({})
 
         @self.app.route("/api/agent", methods=['POST'])
         async def createAgent():
@@ -179,9 +181,9 @@ class WebServer:
             logging.info(data)
             try:
                 # self.agentManager.update_agent(data)
-                if (data["id"] is not None):
-                    del(data["id"])
-                self.agentManager.update_agent_fields(id, data)
+                # if (data["id"] is not None):
+                #     del(data["id"])
+                self.agentManager.save(data)
                 
                 logging.info("END CALL\n\n\n\n\n\n")
                 return jsonify({"success": True, "agent": data}), 201
